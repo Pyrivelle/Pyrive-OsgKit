@@ -1,0 +1,5 @@
+if(NOT TARGET PereViaOsgDependency::OSG)
+    add_library(PereViaOsgDependency::OSG INTERFACE IMPORTED GLOBAL)
+    target_include_directories(PereViaOsgDependency::OSG INTERFACE ${OPENSCENEGRAPH_INCLUDE_DIRS})
+    target_link_libraries(PereViaOsgDependency::OSG INTERFACE ${OPENSCENEGRAPH_LIBRARIES})
+endif()

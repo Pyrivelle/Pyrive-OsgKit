@@ -1,0 +1,7 @@
+{
+  "name": "perevia-osg",
+  "version-string": "0.1.0",
+  "dependencies": [
+    { "name": "osg", "default-features": false }
+  ]
+}

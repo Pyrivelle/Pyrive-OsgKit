@@ -1,0 +1,18 @@
+# Generated builds, dependencies and SDK output.
+/build/
+/build-*/
+/out/
+/dist/
+
+# Visual Studio local state.
+.vs/
+*.vcxproj.user
+*.suo
+*.userosscache
+*.sln.docstates
+CMakeUserPresets.json
+
+# Local credentials and environment overrides.
+.env
+.env.*
+!.env.example

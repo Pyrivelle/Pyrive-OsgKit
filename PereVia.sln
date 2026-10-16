@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PereViaOsgTests", "build\PereViaOsgTests.vcxproj", "{B6250E23-AB2B-3C01-88A4-1671948A17A9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{ADCDF605-AC3C-340A-AB47-95B57DA24B48} = {ADCDF605-AC3C-340A-AB47-95B57DA24B48}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PereViaOsg", "build\PereViaOsg.vcxproj", "{ADCDF605-AC3C-340A-AB47-95B57DA24B48}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B6250E23-AB2B-3C01-88A4-1671948A17A9}.Debug|x64.ActiveCfg = Debug|x64
+		{B6250E23-AB2B-3C01-88A4-1671948A17A9}.Release|x64.ActiveCfg = Release|x64
+		{ADCDF605-AC3C-340A-AB47-95B57DA24B48}.Debug|x64.ActiveCfg = Debug|x64
+		{ADCDF605-AC3C-340A-AB47-95B57DA24B48}.Debug|x64.Build.0 = Debug|x64
+		{ADCDF605-AC3C-340A-AB47-95B57DA24B48}.Release|x64.ActiveCfg = Release|x64
+		{ADCDF605-AC3C-340A-AB47-95B57DA24B48}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5560BA97-5EE3-3090-80DF-FF0A22AC29CC}
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
