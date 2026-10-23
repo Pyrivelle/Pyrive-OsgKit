@@ -15,7 +15,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace PereVia::OsgKit {
+namespace Pyrive::OsgKit {
 
 namespace {
 

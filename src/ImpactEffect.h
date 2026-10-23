@@ -4,7 +4,7 @@
 #include <osg/Billboard>
 #include <osg/Geometry>
 
-namespace PereVia::OsgKit::Detail {
+namespace Pyrive::OsgKit::Detail {
 
 // 仅供库内部使用：负责命中后的闪光、火球和烟雾，不负责碰撞与计时。
 // ProjectileCallback 统一传入“命中后经过的秒数”，所有效果共用宿主时间。

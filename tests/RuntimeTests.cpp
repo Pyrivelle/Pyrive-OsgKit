@@ -17,8 +17,8 @@ void cubeMotion() {
     osg::ref_ptr<osgViewer::Viewer> viewer = new osgViewer::Viewer;
     osg::ref_ptr<osg::Group> root = new osg::Group;
     viewer->setSceneData(root.get());
-    PereVia::OsgKit::Runtime runtime(viewer.get(), viewer->getCamera(), root.get());
-    PereVia::OsgKit::URMCubeOptions options;
+    Pyrive::OsgKit::Runtime runtime(viewer.get(), viewer->getCamera(), root.get());
+    Pyrive::OsgKit::URMCubeOptions options;
     options.position.set(1, 2, 3);
     options.direction.set(0, 5, 0); // 非单位向量，移动速度仍然应为 2。
     options.speed = 2.0;
@@ -73,7 +73,7 @@ void runRuntimeTests() {
 
     osg::ref_ptr<osg::Group> retainedPluginRoot;
     {
-        PereVia::OsgKit::Runtime runtime(viewer.get(), viewer->getCamera(), hostRoot.get());
+        Pyrive::OsgKit::Runtime runtime(viewer.get(), viewer->getCamera(), hostRoot.get());
         retainedPluginRoot = runtime.root();
         require(hostRoot->getNumChildren() == 2, "PereViaRoot was not attached");
         require(hostRoot->containsNode(runtime.root()), "Wrong attachment point");
@@ -82,7 +82,7 @@ void runRuntimeTests() {
         require(viewer->getSceneData() == hostRoot.get(), "Runtime replaced the host scene");
         require(hostRoot->referenceCount() == hostReferences, "Runtime owns the host root");
         {
-            PereVia::OsgKit::Runtime another(viewer.get(), viewer->getCamera(), hostRoot.get());
+            Pyrive::OsgKit::Runtime another(viewer.get(), viewer->getCamera(), hostRoot.get());
             require(another.root() != runtime.root(), "Instances share an output root");
             require(hostRoot->getNumChildren() == 3, "Second instance was not attached");
         }
@@ -95,7 +95,7 @@ void runRuntimeTests() {
     for (int missing = 0; missing < 3; ++missing) {
         bool rejected = false;
         try {
-            PereVia::OsgKit::Runtime invalid(missing == 0 ? nullptr : viewer.get(),
+            Pyrive::OsgKit::Runtime invalid(missing == 0 ? nullptr : viewer.get(),
                 missing == 1 ? nullptr : viewer->getCamera(), missing == 2 ? nullptr : hostRoot.get());
         } catch (const std::invalid_argument&) { rejected = true; }
         require(rejected && hostRoot->getNumChildren() == 1, "Invalid input changed the scene");
@@ -104,7 +104,7 @@ void runRuntimeTests() {
     // 宿主先释放独立挂接点时，Runtime 析构也不能访问失效的 root。
     osg::ref_ptr<osg::Group> temporaryRoot = new osg::Group;
     {
-        PereVia::OsgKit::Runtime runtime(viewer.get(), viewer->getCamera(), temporaryRoot.get());
+        Pyrive::OsgKit::Runtime runtime(viewer.get(), viewer->getCamera(), temporaryRoot.get());
         temporaryRoot = nullptr;
     }
     cubeMotion();

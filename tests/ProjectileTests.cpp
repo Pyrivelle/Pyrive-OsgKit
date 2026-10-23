@@ -26,7 +26,7 @@ bool near(const osg::Vec3d& a, const osg::Vec3d& b) {
 struct Host {
     osg::ref_ptr<osgViewer::Viewer> viewer = new osgViewer::Viewer;
     osg::ref_ptr<osg::Group> root = new osg::Group;
-    PereVia::OsgKit::Runtime runtime{viewer.get(), viewer->getCamera(), root.get()};
+    Pyrive::OsgKit::Runtime runtime{viewer.get(), viewer->getCamera(), root.get()};
     Host() { viewer->setSceneData(root.get()); }
     void frame(double time) { viewer->advance(time); viewer->updateTraversal(); }
 };
@@ -49,7 +49,7 @@ void selectedTargetsAndSparks() {
     host.root->addChild(target.get());
     host.root->addChild(farther.get());
     const int targetReferences = target->referenceCount();
-    PereVia::OsgKit::ProjectileOptions options;
+    Pyrive::OsgKit::ProjectileOptions options;
     options.position.set(0, 0, 0);
     options.direction.set(7, 0, 0);
     options.speed = 100.0; // 一帧越过整个目标，必须检查运动路径。
@@ -58,7 +58,7 @@ void selectedTargetsAndSparks() {
     options.sparks.duration = 1.0;
     options.explosion.enabled = false;
     options.smoke.enabled = false;
-    auto projectile = PereVia::OsgKit::createProjectile(host.runtime, options);
+    auto projectile = Pyrive::OsgKit::createProjectile(host.runtime, options);
     require(target->referenceCount() == targetReferences && target->getNumParents() == 1,
         "Binding targets changed their ownership or parentage");
     host.frame(0.0);
@@ -83,15 +83,15 @@ void selectedTargetsAndSparks() {
 
 void gravityAndMisses() {
     Host host;
-    PereVia::OsgKit::ProjectileOptions options;
+    Pyrive::OsgKit::ProjectileOptions options;
     options.position.set(0, 0, 10);
     options.direction.set(1, 0, 0);
     options.speed = 2.0;
     options.gravity.set(0, 0, -2);
     options.maxFlightSeconds = 3.0;
-    auto falling = PereVia::OsgKit::createProjectile(host.runtime, options);
+    auto falling = Pyrive::OsgKit::createProjectile(host.runtime, options);
     options.gravityEnabled = false;
-    auto straight = PereVia::OsgKit::createProjectile(host.runtime, options);
+    auto straight = Pyrive::OsgKit::createProjectile(host.runtime, options);
     host.frame(0);
     host.frame(2);
     require(near(falling->getMatrix().getTrans(), osg::Vec3d(4, 0, 6)), "Gravity trajectory was wrong");
@@ -110,19 +110,19 @@ void transformedBranchesAndDeadTargets() {
     mount->setMatrix(osg::Matrixd::rotate(osg::PI_2, osg::Vec3d(0, 0, 1)) *
                      osg::Matrixd::translate(10, 0, 0));
     host.root->addChild(mount.get());
-    PereVia::OsgKit::Runtime nested(host.viewer.get(), host.viewer->getCamera(), mount.get());
+    Pyrive::OsgKit::Runtime nested(host.viewer.get(), host.viewer->getCamera(), mount.get());
     osg::ref_ptr<osg::MatrixTransform> targetParent = new osg::MatrixTransform;
     targetParent->setMatrix(osg::Matrixd::translate(10, 4, 0));
     auto target = box(osg::Vec3d(0, 2, 0));
     targetParent->addChild(target.get());
     host.root->addChild(targetParent.get());
-    PereVia::OsgKit::ProjectileOptions options;
+    Pyrive::OsgKit::ProjectileOptions options;
     options.position.set(0, 0, 0);
     options.direction.set(1, 0, 0);
     options.speed = 10;
     options.gravityEnabled = false;
     options.collisionTargets = {target.get()};
-    auto projectile = PereVia::OsgKit::createProjectile(nested, options);
+    auto projectile = Pyrive::OsgKit::createProjectile(nested, options);
     require(nested.root()->containsNode(projectile.get()) && !host.runtime.root()->containsNode(projectile.get()),
         "Projectile was not attached to the explicitly supplied Runtime");
     host.frame(0);
@@ -136,7 +136,7 @@ void transformedBranchesAndDeadTargets() {
     host.root->addChild(removed.get());
     host.root->addChild(destroyed.get());
     options.collisionTargets = {removed.get(), destroyed.get()};
-    auto missed = PereVia::OsgKit::createProjectile(host.runtime, options);
+    auto missed = Pyrive::OsgKit::createProjectile(host.runtime, options);
     require(host.runtime.root()->containsNode(missed.get()) && !nested.root()->containsNode(missed.get()),
         "Creating a second projectile used the wrong Runtime");
     host.root->removeChild(removed.get());
@@ -152,7 +152,7 @@ void gravityContactAndCleanupOrder() {
     Host host;
     auto target = box(osg::Vec3d(0, 0, 0));
     host.root->addChild(target.get());
-    PereVia::OsgKit::ProjectileOptions options;
+    Pyrive::OsgKit::ProjectileOptions options;
     options.position.set(0, 0, 5);
     options.direction.set(0, 0, -1);
     options.speed = 0;
@@ -161,8 +161,8 @@ void gravityContactAndCleanupOrder() {
     options.sparks.duration = 0.1;
     options.explosion.enabled = false;
     options.smoke.enabled = false;
-    auto one = PereVia::OsgKit::createProjectile(host.runtime, options);
-    auto two = PereVia::OsgKit::createProjectile(host.runtime, options);
+    auto one = Pyrive::OsgKit::createProjectile(host.runtime, options);
+    auto two = Pyrive::OsgKit::createProjectile(host.runtime, options);
     host.frame(0);
     host.frame(1.9);
     require(near(one->getMatrix().getTrans(), osg::Vec3d(0, 0, 1.39)),
@@ -186,7 +186,7 @@ void explosionAndSmoke() {
     Host host;
     auto target = box(osg::Vec3d(0, 0, 0));
     host.root->addChild(target.get());
-    PereVia::OsgKit::ProjectileOptions options;
+    Pyrive::OsgKit::ProjectileOptions options;
     options.position.set(0, 0, 3);
     options.direction.set(0, 0, -1);
     options.speed = 10;
@@ -196,7 +196,7 @@ void explosionAndSmoke() {
     options.explosion.duration = 0.5;
     options.smoke.duration = 2.0;
     options.smoke.count = 12;
-    auto projectile = PereVia::OsgKit::createProjectile(host.runtime, options);
+    auto projectile = Pyrive::OsgKit::createProjectile(host.runtime, options);
     host.frame(0);
     require(!findChild(projectile.get(), "PereVia.Smoke"), "Smoke appeared before contact");
     host.frame(0.25); // t=0.2 命中，此时效果年龄为 0.05 秒。
@@ -227,7 +227,7 @@ void explosionAndSmoke() {
     // 关闭两层新增效果后，仍然可以单独使用原有火花。
     options.explosion.enabled = false;
     options.smoke.enabled = false;
-    auto sparksOnly = PereVia::OsgKit::createProjectile(host.runtime, options);
+    auto sparksOnly = Pyrive::OsgKit::createProjectile(host.runtime, options);
     host.frame(3.0);
     host.frame(3.25);
     require(findChild(sparksOnly.get(), "PereVia.Sparks") &&

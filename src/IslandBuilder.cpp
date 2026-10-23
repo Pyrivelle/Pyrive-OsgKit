@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <mapbox/earcut.hpp>
 
-namespace PereVia::OsgKit {
+namespace Pyrive::OsgKit {
 namespace {
 using Triangle = std::array<unsigned, 3>;
 // 二维几何判断的数值容差。下面先归一化坐标，再判断共线、相交和退化，

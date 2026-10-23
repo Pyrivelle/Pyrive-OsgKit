@@ -16,7 +16,7 @@
 #include <random>
 #include <stdexcept>
 
-namespace PereVia::OsgKit {
+namespace Pyrive::OsgKit {
 namespace {
 
 bool finite(const osg::Vec3d& value) {

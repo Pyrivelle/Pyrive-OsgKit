@@ -8,7 +8,7 @@
 #include <cmath>
 #include <random>
 
-namespace PereVia::OsgKit::Detail {
+namespace Pyrive::OsgKit::Detail {
 namespace {
 
 // 在内存中生成柔边云团贴图。无外部图片文件，复制 DLL 即可使用。

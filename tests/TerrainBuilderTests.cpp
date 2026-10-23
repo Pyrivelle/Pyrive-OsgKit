@@ -13,9 +13,9 @@ namespace {
 void require(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
-void reject(const PereVia::OsgKit::TerrainOptions& options) {
+void reject(const Pyrive::OsgKit::TerrainOptions& options) {
     bool rejected = false;
-    try { PereVia::OsgKit::TerrainBuilder::build(options); }
+    try { Pyrive::OsgKit::TerrainBuilder::build(options); }
     catch (const std::invalid_argument&) { rejected = true; }
     require(rejected, "Invalid terrain input was accepted");
 }
@@ -60,7 +60,7 @@ private:
 void terrainLODTests(const osg::Vec3dArray& originalVertices) {
     auto options = exampleTerrainOptions();
     options.enableLOD = true; options.impostorResolution = 64;
-    auto node = PereVia::OsgKit::TerrainBuilder::build(options);
+    auto node = Pyrive::OsgKit::TerrainBuilder::build(options);
     auto* lod = dynamic_cast<osg::LOD*>(node.get());
     require(lod && lod->getNumChildren() == 3 && lod->getNumParents() == 0, "Terrain LOD must contain three standalone levels");
     require(lod->getRangeMode() == osg::LOD::PIXEL_SIZE_ON_SCREEN && lod->getMinRange(0) == 300 &&
@@ -96,10 +96,10 @@ void terrainLODTests(const osg::Vec3dArray& originalVertices) {
     require(reportedHigh == high && reportedLow == low, "Terrain LOD statistics must report actual mesh sizes");
 
     // 最小网格、全平地形、长条形和大原点：都应可创建三级节点而不产生 NaN/空粗网格。
-    PereVia::OsgKit::TerrainOptions small;
+    Pyrive::OsgKit::TerrainOptions small;
     small.columns = 2; small.rows = 2; small.elevations = {-3, -3, -3, -3}; small.enableLOD = true;
     small.impostorResolution = 32;
-    auto flat = PereVia::OsgKit::TerrainBuilder::build(small);
+    auto flat = Pyrive::OsgKit::TerrainBuilder::build(small);
     auto* flatLod = dynamic_cast<osg::LOD*>(flat.get());
     require(flatLod && validateMesh(*dynamic_cast<osg::Geode*>(flatLod->getChild(1))->getDrawable(0)->asGeometry()) == 2,
         "Flat minimum grid must retain a valid LOD1");
@@ -112,7 +112,7 @@ void terrainLODTests(const osg::Vec3dArray& originalVertices) {
         small.elevations.resize(size_t(small.columns) * small.rows);
         for (size_t i = 0; i < small.elevations.size(); ++i) small.elevations[i] = std::sin(double(i) * 0.2);
         small.origin.set(10000000, -20000000, -100);
-        auto thin = PereVia::OsgKit::TerrainBuilder::build(small);
+        auto thin = Pyrive::OsgKit::TerrainBuilder::build(small);
         auto* thinLod = dynamic_cast<osg::LOD*>(thin.get());
         require(thinLod && validateMesh(*dynamic_cast<osg::Geode*>(thinLod->getChild(1))->getDrawable(0)->asGeometry()) > 0,
             "Narrow terrain must retain a valid coarse mesh");
@@ -126,18 +126,18 @@ void terrainLODTests(const osg::Vec3dArray& originalVertices) {
     invalid = small; invalid.impostorResolution = 4; reject(invalid);
     invalid = small; invalid.impostorTopAngle = 90; reject(invalid);
     invalid.enableLOD = false;
-    require(dynamic_cast<osg::Geode*>(PereVia::OsgKit::TerrainBuilder::build(invalid).get()) != nullptr,
+    require(dynamic_cast<osg::Geode*>(Pyrive::OsgKit::TerrainBuilder::build(invalid).get()) != nullptr,
         "Disabled terrain LOD must ignore its unused parameters");
     std::cout << "Terrain LOD tests passed: " << high << " -> " << low << " -> 2 visible triangles\n";
 }
 }
 
 void runTerrainBuilderTests() {
-    PereVia::OsgKit::TerrainOptions options;
+    Pyrive::OsgKit::TerrainOptions options;
     options.columns = 3; options.rows = 2;
     options.elevations = {-5, -3, -1, -2, 0, 2};
     options.origin.set(10, 20, 100); options.spacing.set(2, 3); options.elevationScale = 2;
-    auto node = PereVia::OsgKit::TerrainBuilder::build(options);
+    auto node = Pyrive::OsgKit::TerrainBuilder::build(options);
     auto* geode = dynamic_cast<osg::Geode*>(node.get());
     require(geode && geode->getNumParents() == 0 && geode->getNumDrawables() == 1, "Terrain must be standalone Geode");
     auto* mesh = geode->getDrawable(0)->asGeometry();
@@ -159,7 +159,7 @@ void runTerrainBuilderTests() {
     require((*colors)[0] == options.lowColor && (*colors)[5] == options.highColor, "Terrain elevation colors are incorrect");
     const auto valid = options;
     options.elevations.assign(6, -12);
-    auto flat = PereVia::OsgKit::TerrainBuilder::build(options);
+    auto flat = Pyrive::OsgKit::TerrainBuilder::build(options);
     auto* flatMesh = dynamic_cast<osg::Geode*>(flat.get())->getDrawable(0)->asGeometry();
     for (const auto& normal : *static_cast<osg::Vec3Array*>(flatMesh->getNormalArray()))
         require((normal - osg::Vec3(0, 0, 1)).length() < 1e-6, "Flat terrain normals must point up");
@@ -184,7 +184,7 @@ void runTerrainBuilderTests() {
     // 实际的 500×500 数据逐点验证，不只检查包围盒或抽样几个位置。
     auto largeOptions = exampleTerrainOptions();
     largeOptions.enableLOD = false;
-    auto large = PereVia::OsgKit::TerrainBuilder::build(largeOptions);
+    auto large = Pyrive::OsgKit::TerrainBuilder::build(largeOptions);
     auto* largeMesh = dynamic_cast<osg::Geode*>(large.get())->getDrawable(0)->asGeometry();
     const auto& largeVertices = *static_cast<osg::Vec3dArray*>(largeMesh->getVertexArray());
     const auto& largeNormals = *static_cast<osg::Vec3Array*>(largeMesh->getNormalArray());

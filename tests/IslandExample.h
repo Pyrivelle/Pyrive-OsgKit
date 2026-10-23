@@ -3,8 +3,8 @@
 #include <cmath>
 
 // 宿主示例：80 点曲折海岸，两个独立内环水域；无随机数，便于复现。
-inline PereVia::OsgKit::IslandOptions complexIslandOptions() {
-    PereVia::OsgKit::IslandOptions options;
+inline Pyrive::OsgKit::IslandOptions complexIslandOptions() {
+    Pyrive::OsgKit::IslandOptions options;
     constexpr double tau = 6.283185307179586;
     for (unsigned i = 0; i < 80; ++i) {
         const double a = tau * i / 80;

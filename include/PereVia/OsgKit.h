@@ -12,7 +12,7 @@
 namespace osg { class Camera; class Group; class MatrixTransform; }
 namespace osgViewer { class Viewer; }
 
-namespace PereVia::OsgKit {
+namespace Pyrive::OsgKit {
 
 // 规则高程栅格：列沿 +X，行沿 +Y，+Z 向上；坐标使用宿主场景单位。
 struct TerrainOptions {

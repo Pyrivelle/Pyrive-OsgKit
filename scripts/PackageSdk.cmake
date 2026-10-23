@@ -75,8 +75,8 @@ file(MAKE_DIRECTORY "${cmake_dir}")
 configure_file("${SOURCE_ROOT}/cmake/PereViaOsgConfig.cmake" "${cmake_dir}/PereViaOsgConfig.cmake" COPYONLY)
 configure_file("${SOURCE_ROOT}/cmake/OsgDependency.cmake" "${cmake_dir}/OsgDependency.cmake" COPYONLY)
 file(WRITE "${cmake_dir}/PereViaOsg-${config_lower}.cmake"
-    "set_property(TARGET PereVia::OsgKit APPEND PROPERTY IMPORTED_CONFIGURATIONS ${config_upper})\n"
-    "set_target_properties(PereVia::OsgKit PROPERTIES\n"
+    "set_property(TARGET Pyrive::OsgKit APPEND PROPERTY IMPORTED_CONFIGURATIONS ${config_upper})\n"
+    "set_target_properties(Pyrive::OsgKit PROPERTIES\n"
     "  IMPORTED_LOCATION_${config_upper} \"\${_perevia_prefix}/bin/${CONFIG}/${dll_name}\"\n"
     "  IMPORTED_IMPLIB_${config_upper} \"\${_perevia_prefix}/lib/${CONFIG}/${lib_name}\")\n")
 file(WRITE "${PACKAGE_ROOT}/manifest-${CONFIG}.txt"

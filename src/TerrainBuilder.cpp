@@ -8,7 +8,7 @@
 #include <limits>
 #include <stdexcept>
 
-namespace PereVia::OsgKit {
+namespace Pyrive::OsgKit {
 namespace {
 bool finite(const osg::Vec3d& p) {
     return std::isfinite(p.x()) && std::isfinite(p.y()) && std::isfinite(p.z());

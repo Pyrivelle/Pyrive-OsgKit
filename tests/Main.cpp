@@ -31,7 +31,7 @@ namespace {
 osg::ref_ptr<osg::Node> buildDemoTerrain() {
     const auto options = exampleTerrainOptions();
     const auto start = std::chrono::steady_clock::now();
-    auto node = PereVia::OsgKit::TerrainBuilder::build(options);
+    auto node = Pyrive::OsgKit::TerrainBuilder::build(options);
     const double milliseconds = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
     const auto* lod = dynamic_cast<const osg::LOD*>(node.get());
     const auto* full = dynamic_cast<const osg::Geode*>(lod ? lod->getChild(0) : node.get());
@@ -61,9 +61,9 @@ osg::ref_ptr<osg::Node> buildDemoTerrain() {
 }
 
 bool complexDemo = false;
-PereVia::OsgKit::IslandOptions demoIslandOptions() {
+Pyrive::OsgKit::IslandOptions demoIslandOptions() {
     if (complexDemo) return complexIslandOptions();
-    PereVia::OsgKit::IslandOptions options;
+    Pyrive::OsgKit::IslandOptions options;
     options.contour = {{-60, -25}, {-30, -45}, {5, -38}, {40, -45},
         {65, -10}, {45, 20}, {15, 10}, {5, 40}, {-35, 45}, {-55, 15}};
     options.height = 25;
@@ -76,7 +76,7 @@ PereVia::OsgKit::IslandOptions demoIslandOptions() {
 osg::ref_ptr<osg::Node> buildDemoIsland() {
     const auto options = demoIslandOptions();
     const auto start = std::chrono::steady_clock::now();
-    auto island = PereVia::OsgKit::IslandBuilder::build(options);
+    auto island = Pyrive::OsgKit::IslandBuilder::build(options);
     const double milliseconds = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - start).count();
     const auto* lod = dynamic_cast<const osg::LOD*>(island.get());
@@ -328,10 +328,10 @@ int main(int argc, char** argv) {
         // 第二步：构造并保存库实例，传入 viewer、camera、root。
         // 参数顺序固定，实例需要一直活到使用结束。
         {
-            PereVia::OsgKit::Runtime runtime(viewer.get(), camera, root.get());
+            Pyrive::OsgKit::Runtime runtime(viewer.get(), camera, root.get());
 
             // 通过参数结构体创建一个匀速直线运动的立方体，库会自动挂载它。
-            //PereVia::OsgKit::URMCubeOptions options;
+            //Pyrive::OsgKit::URMCubeOptions options;
             //options.position = osg::Vec3d(-4, 0, 1);
             //options.direction = osg::Vec3d(1, 0, 0);
             //options.size = osg::Vec3(0.8f, 0.8f, 0.8f);
@@ -341,7 +341,7 @@ int main(int argc, char** argv) {
             //cube->setName("MyMovingCube"); // 也可以作为 osg::Node* 使用。
 
             // 发射物只检查指定船只，命中后产生闪光、火球、火花和烟雾。
-            PereVia::OsgKit::ProjectileOptions shot;
+            Pyrive::OsgKit::ProjectileOptions shot;
             shot.position.set(0, 0, 8);
             shot.direction.set(0, 0, -1);
             shot.speed = 1.0;
@@ -356,7 +356,7 @@ int main(int argc, char** argv) {
             shot.smoke.radius = 1.2f;
             shot.smoke.duration = 3.5;
             shot.smoke.riseSpeed = 1.2;
-            auto projectile = PereVia::OsgKit::createProjectile(runtime, shot); // 明确指定归属的 Runtime。
+            auto projectile = Pyrive::OsgKit::createProjectile(runtime, shot); // 明确指定归属的 Runtime。
             if (smoke) enableEffectCapture(camera, projectile.get()); // 保存三个阶段的实际渲染截图。
 
             // 第三步：库已自动在 root 下面挂载自己的 PereViaRoot。

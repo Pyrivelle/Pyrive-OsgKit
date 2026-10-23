@@ -17,8 +17,8 @@ void require(bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
 }
 
-void verifyMesh(const PereVia::OsgKit::IslandOptions& options, double area) {
-    auto island = PereVia::OsgKit::IslandBuilder::build(options);
+void verifyMesh(const Pyrive::OsgKit::IslandOptions& options, double area) {
+    auto island = Pyrive::OsgKit::IslandBuilder::build(options);
     auto* geode = dynamic_cast<osg::Geode*>(island.get());
     require(geode && geode->getNumDrawables() == 1 && island->getNumParents() == 0,
         "Island must return standalone geometry");
@@ -67,14 +67,14 @@ void verifyMesh(const PereVia::OsgKit::IslandOptions& options, double area) {
         "Island triangulation changed coastline area");
     require(std::abs(low - (options.seaLevel - options.baseDepth)) < 1e-8 &&
         std::abs(high - (options.seaLevel + options.height)) < 1e-8, "Island height/depth mismatch");
-    auto again = PereVia::OsgKit::IslandBuilder::build(options);
+    auto again = Pyrive::OsgKit::IslandBuilder::build(options);
     auto* other = dynamic_cast<osg::Geode*>(again.get())->getDrawable(0)->asGeometry();
     require(*vertices == *dynamic_cast<osg::Vec3dArray*>(other->getVertexArray()), "Island must be deterministic");
 }
 
-void reject(const PereVia::OsgKit::IslandOptions& options) {
+void reject(const Pyrive::OsgKit::IslandOptions& options) {
     bool rejected = false;
-    try { PereVia::OsgKit::IslandBuilder::build(options); }
+    try { Pyrive::OsgKit::IslandBuilder::build(options); }
     catch (const std::invalid_argument&) { rejected = true; }
     require(rejected, "Invalid island input was accepted");
 }
@@ -134,7 +134,7 @@ double ringArea(const std::vector<osg::Vec2d>& ring) {
 }
 
 void holeTests() {
-    PereVia::OsgKit::IslandOptions options;
+    Pyrive::OsgKit::IslandOptions options;
     options.contour = {{0, 0}, {20, 0}, {20, 20}, {0, 20}};
     options.holes = {{{3, 3}, {7, 3}, {7, 7}, {3, 7}}, {{12, 12}, {17, 12}, {17, 17}, {12, 17}}};
     options.subdivisions = 2;
@@ -143,7 +143,7 @@ void holeTests() {
     std::reverse(options.contour.begin(), options.contour.end());
     options.contour.push_back(options.contour.front());
     verifyMesh(options, 359);
-    auto mesh = PereVia::OsgKit::IslandBuilder::build(options);
+    auto mesh = Pyrive::OsgKit::IslandBuilder::build(options);
     require(!verticalHit(mesh.get(), 5, 5) && !verticalHit(mesh.get(), 14, 14) && verticalHit(mesh.get(), 10, 10),
         "Hole interiors must remain empty through surface and bottom");
     osg::Vec3d wallNormal;
@@ -166,7 +166,7 @@ void holeTests() {
     complex.enableLOD = false; complex.subdivisions = 1;
     verifyMesh(complex, area);
     complex.enableLOD = true; complex.subdivisions = 3; complex.impostorResolution = 128;
-    auto complexNode = PereVia::OsgKit::IslandBuilder::build(complex);
+    auto complexNode = Pyrive::OsgKit::IslandBuilder::build(complex);
     auto* lod = dynamic_cast<osg::LOD*>(complexNode.get());
     require(lod && lod->getNumChildren() == 3, "Holed island LOD missing");
     for (unsigned level = 0; level < 2; ++level)
@@ -188,12 +188,12 @@ void holeTests() {
 }
 
 void lodTests() {
-    PereVia::OsgKit::IslandOptions options;
+    Pyrive::OsgKit::IslandOptions options;
     options.contour = {{-60, -25}, {-30, -45}, {5, -38}, {40, -45},
         {65, -10}, {45, 20}, {15, 10}, {5, 40}, {-35, 45}, {-55, 15}};
     options.enableLOD = true; options.subdivisions = 5; options.height = 25;
     options.impostorResolution = 64;
-    auto node = PereVia::OsgKit::IslandBuilder::build(options);
+    auto node = Pyrive::OsgKit::IslandBuilder::build(options);
     auto* lod = dynamic_cast<osg::LOD*>(node.get());
     require(lod && lod->getNumChildren() == 3 && node->getNumParents() == 0,
         "enableLOD must return a standalone three-level LOD");
@@ -249,12 +249,12 @@ void lodTests() {
     options.impostorResolution = 64; options.impostorTopAngle = 90; reject(options);
     // 未启用 LOD 时不读取 LOD 专用参数。
     options.enableLOD = false;
-    require(dynamic_cast<osg::Geode*>(PereVia::OsgKit::IslandBuilder::build(options).get()) != nullptr,
+    require(dynamic_cast<osg::Geode*>(Pyrive::OsgKit::IslandBuilder::build(options).get()) != nullptr,
         "Disabled LOD must still return Geode");
-    options = PereVia::OsgKit::IslandOptions{};
+    options = Pyrive::OsgKit::IslandOptions{};
     options.contour = {{0, 0}, {10, 0}, {0, 10}};
     options.enableLOD = true; options.subdivisions = 0; options.impostorResolution = 32;
-    auto sparseNode = PereVia::OsgKit::IslandBuilder::build(options);
+    auto sparseNode = Pyrive::OsgKit::IslandBuilder::build(options);
     auto* sparse = dynamic_cast<osg::LOD*>(sparseNode.get());
     require(sparse && triangles(*dynamic_cast<osg::Geode*>(sparse->getChild(1))->getDrawable(0)->asGeometry()) > 0,
         "Sparse source mesh must not collapse to an empty LOD1");
@@ -263,7 +263,7 @@ void lodTests() {
 }
 
 void runIslandBuilderTests() {
-    PereVia::OsgKit::IslandOptions options;
+    Pyrive::OsgKit::IslandOptions options;
     options.contour = {{0, 0}, {10, 0}, {10, 4}, {4, 4}, {4, 10}, {0, 10}};
     options.seaLevel = 3; options.height = 7; options.baseDepth = 2;
     options.subdivisions = 2;

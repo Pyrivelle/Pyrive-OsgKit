@@ -1,8 +1,11 @@
-# PereVia OSG：场景接入、高程地形、岛屿、发射物与爆炸效果
+# Pyrive OSG：场景接入、高程地形、岛屿、发射物与爆炸效果
+
+所有公共 C++ 接口统一使用 `Pyrive::OsgKit` 命名空间，CMake 导出目标同名。头文件路径保持 `<PereVia/OsgKit.h>`；命名空间变更会改变 DLL 符号，更新头文件和 DLL/LIB 后需重新编译宿主。场景节点名称和用户值键保持原有命名。
+MSVC 宿主需启用 `/utf-8`，以正确读取公共头文件中的 UTF-8 中文注释；本库及测试项目已启用该选项。
 
 ## TerrainBuilder：高程地形
 
-`PereVia::OsgKit::TerrainBuilder::build(const TerrainOptions&)` 输入规则高程栅格，始终返回 `osg::ref_ptr<osg::Node>`。`enableLOD=false` 时实际为独立 Geode；`true` 时为完整网格、简化网格、两图面片三级 `osg::LOD`。调用者自行挂到宿主场景，不需要 Runtime。
+`Pyrive::OsgKit::TerrainBuilder::build(const TerrainOptions&)` 输入规则高程栅格，始终返回 `osg::ref_ptr<osg::Node>`。`enableLOD=false` 时实际为独立 Geode；`true` 时为完整网格、简化网格、两图面片三级 `osg::LOD`。调用者自行挂到宿主场景，不需要 Runtime。
 
 | 参数 | 默认值 | 含义 |
 | --- | --- | --- |
@@ -52,7 +55,7 @@ LOD2 与岛屿共用 CPU 两图烘焙和按相机角度择一显示的逻辑，�
 
 ## IslandBuilder：岛屿生成
 
-`PereVia::OsgKit::IslandBuilder::build(const IslandOptions&)` 始终返回 `osg::ref_ptr<osg::Node>`。`enableLOD=false` 时实际为 Geode，`true` 时为三级 LOD。它不依赖 `Runtime`，不自动挂接场景；调用者使用 `root->addChild(island.get())` 展示，保留引用即可继续使用模型。原先显式接收 Geode 的代码需要改为 Node，并重新编译宿主。参见 README 的最小示例，运行测试宿主的 `--island` 参数可以旋转、缩放查看岛屿与 LOD 切换。
+`Pyrive::OsgKit::IslandBuilder::build(const IslandOptions&)` 始终返回 `osg::ref_ptr<osg::Node>`。`enableLOD=false` 时实际为 Geode，`true` 时为三级 LOD。它不依赖 `Runtime`，不自动挂接场景；调用者使用 `root->addChild(island.get())` 展示，保留引用即可继续使用模型。原先显式接收 Geode 的代码需要改为 Node，并重新编译宿主。参见 README 的最小示例，运行测试宿主的 `--island` 参数可以旋转、缩放查看岛屿与 LOD 切换。
 
 | 参数 | 默认值 | 含义 |
 | --- | --- | --- |
@@ -78,11 +81,11 @@ LOD2 与岛屿共用 CPU 两图烘焙和按相机角度择一显示的逻辑，�
 内环代表模型中贯穿地表和底面的空洞，沿内环生成朝向孔洞的侧壁。高度取到所有内外海岸的最近距离，因此内岸也逐渐降至 `seaLevel`。库不填充水面；可以由宿主在 `seaLevel` 放置海面，使孔洞呈现为环礁水域或岛内水域。若需要封底的湖床，则需要另一种地形定义。
 
 ```cpp
-PereVia::OsgKit::IslandOptions options;
+Pyrive::OsgKit::IslandOptions options;
 options.contour = {{0, 0}, {100, 0}, {100, 100}, {0, 100}};
 options.holes = {{{30, 30}, {60, 30}, {60, 60}, {30, 60}}};
 options.enableLOD = true;
-osg::ref_ptr<osg::Node> island = PereVia::OsgKit::IslandBuilder::build(options);
+osg::ref_ptr<osg::Node> island = Pyrive::OsgKit::IslandBuilder::build(options);
 root->addChild(island.get());
 ```
 
@@ -122,9 +125,9 @@ LOD2 在创建时用 CPU 正交光栅化完整网格，生成透明俯视图（�
 #include <osg/MatrixTransform>
 
 // viewer 和 root 已由宿主创建，root 已经挂到场景中。
-PereVia::OsgKit::Runtime runtime(viewer, viewer->getCamera(), root);
+Pyrive::OsgKit::Runtime runtime(viewer, viewer->getCamera(), root);
 
-PereVia::OsgKit::URMCubeOptions options;
+Pyrive::OsgKit::URMCubeOptions options;
 options.position.set(-4, 0, 1);
 options.direction.set(1, 0, 0);
 options.size.set(0.8f, 0.8f, 0.8f);
@@ -169,7 +172,7 @@ while (!viewer->done()) {
 ## 发射物与指定目标碰撞
 
 ```cpp
-PereVia::OsgKit::ProjectileOptions shot;
+Pyrive::OsgKit::ProjectileOptions shot;
 shot.position.set(0, 0, 8);
 shot.direction.set(0, 0, -1);
 shot.speed = 1.0;
@@ -186,7 +189,7 @@ shot.smoke.enabled = true;
 shot.smoke.duration = 3.5;
 shot.smoke.radius = 1.2f;
 shot.smoke.riseSpeed = 1.2;
-auto projectile = PereVia::OsgKit::createProjectile(runtime, shot);
+auto projectile = Pyrive::OsgKit::createProjectile(runtime, shot);
 ```
 
 无需额外的管理器或更新调用，仍由 `viewer->frame()` 驱动。
@@ -221,7 +224,7 @@ auto projectile = PereVia::OsgKit::createProjectile(runtime, shot);
 
 **当前是点与表面的碰撞：radius 只控制外观，不代表球体扫掠半径。** 发射点应位于模型外部；不提供“起点已经位于实体内部”的体积检测。重力曲线用短线段近似，正常按约 1/120 秒细分，一次跳帧最多 512 段；没有固定步仿真器或独立计时线程。目标列表应传普通已加载的模型 Group，尚未验证嵌套 Camera、特殊 LOD/Switch 祖先的实例选择语义。
 
-`PereVia::OsgKit::createProjectile(runtime, options)` 返回 `osg::ref_ptr<osg::MatrixTransform>`。与测试立方体不同，发射物会自动回收，因此返回强引用让宿主仍能安全读取最后位置。`projectile->getNumParents() == 0` 可检查是否已从场景摘除。回收先隐藏和清空物体，下一次 PereViaRoot 更新时摘除，避免在父节点遍历过程中移除当前子节点。宿主不需要继续观察时释放 ref_ptr 即可；不要将发射物重新挂到其他位置或替换其更新回调。
+`Pyrive::OsgKit::createProjectile(runtime, options)` 返回 `osg::ref_ptr<osg::MatrixTransform>`。与测试立方体不同，发射物会自动回收，因此返回强引用让宿主仍能安全读取最后位置。`projectile->getNumParents() == 0` 可检查是否已从场景摘除。回收先隐藏和清空物体，下一次 PereViaRoot 更新时摘除，避免在父节点遍历过程中移除当前子节点。宿主不需要继续观察时释放 ref_ptr 即可；不要将发射物重新挂到其他位置或替换其更新回调。
 
 配置在创建时复制，后续修改配置不会改变已创建的发射物。使用单调递增的宿主仿真时间；发射物的命中和回收状态不支持倒放。API 的创建和场景引用操作继续要求在同一个 SingleThreaded 场景线程、更新遍历之外调用。
 
@@ -256,7 +259,7 @@ auto projectile = PereVia::OsgKit::createProjectile(runtime, shot);
 
 首次下载后先运行 configure.ps1，生成 build 目录内的两个项目文件，再打开根目录 PereVia.sln。Visual Studio 中生成 `PereViaOsgTests`，设为启动项目，F5 即可看到窗口。中间的立方体属于宿主，一枚球体从 z=8 落向船只，命中 z=2 的顶面后产生闪光、火球、火花和烟雾。Main 中的橙色匀速立方体示例目前保留为注释，可自行启用。相机保持 Z 轴朝上；--smoke 模式运行约 6 秒后自动退出，并在当前工作目录的 build 文件夹保存 effect-flash.ppm、effect-fire.ppm、effect-smoke.ppm 三张真实帧缓冲截图。截图功能只属于测试宿主，不进入 DLL。
 
-单独构建库会在 `dist` 输出公共头文件、Debug/Release 的 DLL、导入 LIB 和 OSG 运行依赖。宿主需要匹配的 OSG 开发依赖；CMake 接入可使用 `find_package(PereViaOsg CONFIG REQUIRED)` 和 `PereVia::OsgKit` 目标。
+单独构建库会在 `dist` 输出公共头文件、Debug/Release 的 DLL、导入 LIB 和 OSG 运行依赖。宿主需要匹配的 OSG 开发依赖；CMake 接入可使用 `find_package(PereViaOsg CONFIG REQUIRED)` 和 `Pyrive::OsgKit` 目标。
 
 ## 当前生命周期约定
 

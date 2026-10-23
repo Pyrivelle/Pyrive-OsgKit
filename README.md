@@ -1,6 +1,9 @@
-# PereVia OSG
+# Pyrive OSG
 
-Perevia 的轻量级 C++ / OpenSceneGraph 功能扩展库，命名空间为 **`PereVia::OsgKit`**。
+Pyrive 的轻量级 C++ / OpenSceneGraph 功能扩展库，命名空间为 **`Pyrive::OsgKit`**。
+
+公共 CMake 目标为 `Pyrive::OsgKit`。头文件路径仍为 `<PereVia/OsgKit.h>`，库文件仍为 `PereViaOsg[d]`；宿主需使用新的命名空间并重新编译，以匹配新的 DLL 导出符号。
+公共头文件含 UTF-8 中文注释，MSVC 宿主应启用 `/utf-8` 编译选项，与库项目保持一致。
 
 将库接入已有的 OSG 场景，通过配置创建发射物，检测指定目标，命中后生成闪光、火球、火花和烟雾。宿主继续管理窗口、相机和渲染循环。
 
@@ -67,8 +70,8 @@ Perevia 的轻量级 C++ / OpenSceneGraph 功能扩展库，命名空间为 **`P
 ## 下载与构建
 
 ```powershell
-git clone https://github.com/Pyrivelle/perevia-osgkit.git
-cd perevia-osgkit
+git clone https://github.com/Pyrivelle/pyrive-osgkit.git
+cd pyrive-osgkit
 ```
 
 如果还没有 vcpkg，先安装一次：
@@ -135,7 +138,7 @@ vcpkg 位于其他目录时，使用 `./configure.ps1 -VcpkgRoot 'D:\tools\vcpkg
 ```cpp
 #include <PereVia/OsgKit.h>
 
-PereVia::OsgKit::TerrainOptions terrainOptions;
+Pyrive::OsgKit::TerrainOptions terrainOptions;
 terrainOptions.columns = 500;
 terrainOptions.rows = 500;
 terrainOptions.elevations = elevationData; // std::vector<double>，恰好 250000 个高程。
@@ -144,7 +147,7 @@ terrainOptions.spacing.set(1, 1);
 terrainOptions.elevationScale = 1;
 terrainOptions.enableLOD = true;
 terrainOptions.lod1TriangleRatio = 0.05;
-osg::ref_ptr<osg::Node> terrain = PereVia::OsgKit::TerrainBuilder::build(terrainOptions);
+osg::ref_ptr<osg::Node> terrain = Pyrive::OsgKit::TerrainBuilder::build(terrainOptions);
 root->addChild(terrain.get());
 ```
 
@@ -155,7 +158,7 @@ root->addChild(terrain.get());
 ```cpp
 #include <PereVia/OsgKit.h>
 
-PereVia::OsgKit::IslandOptions options;
+Pyrive::OsgKit::IslandOptions options;
 options.contour = {{-60, -25}, {-30, -45}, {5, -38}, {40, -45},
     {65, -10}, {45, 20}, {15, 10}, {5, 40}, {-35, 45}, {-55, 15}};
 options.height = 25.0;
@@ -164,7 +167,7 @@ options.subdivisions = 5;
 options.enableLOD = true;
 options.lod1TriangleRatio = 0.05;
 // 可选：options.holes = {{ /* 岛内水域边界点 */ }};
-osg::ref_ptr<osg::Node> island = PereVia::OsgKit::IslandBuilder::build(options);
+osg::ref_ptr<osg::Node> island = Pyrive::OsgKit::IslandBuilder::build(options);
 root->addChild(island.get());
 ```
 
@@ -178,9 +181,9 @@ root->addChild(island.get());
 #include <PereVia/OsgKit.h>
 
 // 在宿主渲染循环之前初始化一次。
-PereVia::OsgKit::Runtime runtime(viewer, camera, root);
+Pyrive::OsgKit::Runtime runtime(viewer, camera, root);
 
-PereVia::OsgKit::ProjectileOptions shot;
+Pyrive::OsgKit::ProjectileOptions shot;
 shot.position.set(0, 0, 8);
 shot.direction.set(0, 0, -1);
 shot.speed = 1.0;
@@ -190,7 +193,7 @@ shot.collisionTargets = {shipGroup};
 shot.explosion.radius = 2.0f;
 shot.smoke.duration = 3.5;
 
-auto projectile = PereVia::OsgKit::createProjectile(runtime, shot);
+auto projectile = Pyrive::OsgKit::createProjectile(runtime, shot);
 
 while (!viewer->done()) {
     viewer->frame();
@@ -228,7 +231,7 @@ dist/licenses/           依赖许可证
 dist/LICENSE             本项目 MIT 许可证
 ```
 
-宿主添加 `dist/include`，链接对应配置的 `PereViaOsg[d].lib`，部署对应 DLL 和运行依赖，并使用匹配的 OSG 开发环境。CMake 宿主也可以通过 `find_package(PereViaOsg CONFIG REQUIRED)` 链接 `PereVia::OsgKit`。
+宿主添加 `dist/include`，链接对应配置的 `PereViaOsg[d].lib`，部署对应 DLL 和运行依赖，并使用匹配的 OSG 开发环境。CMake 宿主也可以通过 `find_package(PereViaOsg CONFIG REQUIRED)` 链接 `Pyrive::OsgKit`。
 
 ## 当前边界
 

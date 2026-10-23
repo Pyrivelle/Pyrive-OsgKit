@@ -12,7 +12,7 @@
 #include <cstring>
 #include <limits>
 
-namespace PereVia::OsgKit::Detail {
+namespace Pyrive::OsgKit::Detail {
 namespace {
 // 统计本模块使用的 GL_TRIANGLES 网格面数：每三个顶点索引对应一个三角形。
 // 统计的是 primitive set 实际提交的索引，包含地表、底面及内外侧壁。

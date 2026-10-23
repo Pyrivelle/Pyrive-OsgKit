@@ -3,8 +3,8 @@
 #include <cmath>
 
 // 500×500 个高程采样点。模拟数据由宿主生成，TerrainBuilder 不依赖此公式。
-inline PereVia::OsgKit::TerrainOptions exampleTerrainOptions() {
-    PereVia::OsgKit::TerrainOptions options;
+inline Pyrive::OsgKit::TerrainOptions exampleTerrainOptions() {
+    Pyrive::OsgKit::TerrainOptions options;
     options.columns = 500; options.rows = 500;
     options.origin.set(-249.5, -249.5, 0);
     options.spacing.set(1, 1); // 499×499 场景单位；若需正好 500×500，可设 500.0/499。

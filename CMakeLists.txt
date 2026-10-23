@@ -15,7 +15,7 @@ add_library(PereViaOsg SHARED
     src/ImpactEffect.cpp src/ImpactEffect.h
     include/PereVia/Export.h include/PereVia/OsgKit.h
 )
-add_library(PereVia::OsgKit ALIAS PereViaOsg)
+add_library(Pyrive::OsgKit ALIAS PereViaOsg)
 target_compile_definitions(PereViaOsg PRIVATE PEREVIA_OSG_BUILD)
 target_compile_features(PereViaOsg PUBLIC cxx_std_17)
 target_include_directories(PereViaOsg PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
