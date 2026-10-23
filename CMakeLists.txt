@@ -9,6 +9,9 @@ include(cmake/OsgDependency.cmake)
 add_library(PereViaOsg SHARED
     src/Runtime.cpp
     src/Projectile.cpp
+    src/IslandBuilder.cpp
+    src/IslandLOD.cpp src/IslandLOD.h
+    src/TerrainBuilder.cpp
     src/ImpactEffect.cpp src/ImpactEffect.h
     include/PereVia/Export.h include/PereVia/OsgKit.h
 )
@@ -16,11 +19,15 @@ add_library(PereVia::OsgKit ALIAS PereViaOsg)
 target_compile_definitions(PereViaOsg PRIVATE PEREVIA_OSG_BUILD)
 target_compile_features(PereViaOsg PUBLIC cxx_std_17)
 target_include_directories(PereViaOsg PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(PereViaOsg SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/earcut/include")
+target_sources(PereViaOsg PRIVATE third_party/earcut/include/mapbox/earcut.hpp third_party/earcut/LICENSE)
+source_group("Third Party\\earcut" FILES third_party/earcut/include/mapbox/earcut.hpp third_party/earcut/LICENSE)
 target_link_libraries(PereViaOsg PUBLIC PereViaOsgDependency::OSG)
 set_target_properties(PereViaOsg PROPERTIES DEBUG_POSTFIX d)
 
 add_executable(PereViaOsgTests EXCLUDE_FROM_ALL
-    tests/Main.cpp tests/RuntimeTests.cpp tests/ProjectileTests.cpp
+    tests/Main.cpp tests/RuntimeTests.cpp tests/ProjectileTests.cpp tests/IslandBuilderTests.cpp tests/IslandExample.h
+    tests/TerrainBuilderTests.cpp tests/TerrainExample.h
 )
 add_dependencies(PereViaOsgTests PereViaOsg)
 target_compile_features(PereViaOsgTests PRIVATE cxx_std_17)
@@ -29,7 +36,10 @@ target_include_directories(PereViaOsgTests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/
 target_link_libraries(PereViaOsgTests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/dist/lib/$<CONFIG>/PereViaOsg$<$<CONFIG:Debug>:d>.lib"
     PereViaOsgDependency::OSG)
-set_target_properties(PereViaOsgTests PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+set_target_properties(PereViaOsgTests PROPERTIES
+    EXCLUDE_FROM_DEFAULT_BUILD FALSE
+    VS_DEBUGGER_COMMAND_ARGUMENTS "--terrain"
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 if(MSVC)
     foreach(target PereViaOsg PereViaOsgTests)
         target_compile_options(${target} PRIVATE /W4 /permissive- /utf-8)
@@ -38,9 +48,9 @@ if(MSVC)
     endforeach()
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT PereViaOsgTests)
 endif()
-source_group("Implementation" FILES src/Runtime.cpp src/Projectile.cpp src/ImpactEffect.cpp src/ImpactEffect.h)
+source_group("Implementation" FILES src/Runtime.cpp src/Projectile.cpp src/IslandBuilder.cpp src/IslandLOD.cpp src/IslandLOD.h src/TerrainBuilder.cpp src/ImpactEffect.cpp src/ImpactEffect.h)
 source_group("Public API" FILES include/PereVia/Export.h include/PereVia/OsgKit.h)
-source_group("Tests" FILES tests/Main.cpp tests/RuntimeTests.cpp tests/ProjectileTests.cpp)
+source_group("Tests" FILES tests/Main.cpp tests/RuntimeTests.cpp tests/ProjectileTests.cpp tests/IslandBuilderTests.cpp tests/IslandExample.h tests/TerrainBuilderTests.cpp tests/TerrainExample.h)
 enable_testing()
 add_test(NAME PereViaOsgRuntime COMMAND PereViaOsgTests --tests)
 

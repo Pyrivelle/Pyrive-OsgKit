@@ -5,12 +5,74 @@
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/MatrixTransform>
+#include <osg/Geode>
+#include <osg/Vec2d>
 #include <vector>
 
 namespace osg { class Camera; class Group; class MatrixTransform; }
 namespace osgViewer { class Viewer; }
 
 namespace PereVia::OsgKit {
+
+// 规则高程栅格：列沿 +X，行沿 +Y，+Z 向上；坐标使用宿主场景单位。
+struct TerrainOptions {
+    unsigned columns = 0; // X 方向采样点数，至少 2。
+    unsigned rows = 0;    // Y 方向采样点数，至少 2；总采样点数最多 4,194,304。
+    // 行优先：elevations[row * columns + column]，数量必须恰好等于 rows*columns。
+    // 每项是原始高程，允许负值；不接受 NaN、无穷或 NoData 标记。
+    std::vector<double> elevations;
+    osg::Vec3d origin{0, 0, 0}; // 第一个采样点的 XY 及高程的 Z 基准。
+    osg::Vec2d spacing{1, 1};   // 相邻采样点的 X/Y 间距，均为正数。
+    double elevationScale = 1.0; // Z=origin.z+elevationScale*高程，必须为有限正数。
+    osg::Vec4 lowColor{0.16f, 0.38f, 0.16f, 1};
+    osg::Vec4 highColor{0.88f, 0.86f, 0.78f, 1}; // 按本次网格最低/最高高程插值。
+    bool enableLOD = false;        // false 返回 Geode；true 返回三级 osg::LOD。
+    double lod1TriangleRatio = 0.05; // LOD1 目标面数比例，(0,1)，受网格/简化约束可能略有偏差。
+    float lod0MinPixels = 300.0f;   // 投影尺寸 >= 此值显示完整地形。
+    float lod1MinPixels = 60.0f;    // [此值,lod0MinPixels) 显示简化地形，再小显示面片。
+    unsigned impostorResolution = 256; // 两张 RGBA 图各自的边长，32..1024。
+    double impostorTopAngle = 45.0; // 俯仰角绝对值 >= 此值选俯视图，否则选侧视图。
+};
+
+class PEREVIA_OSG_API TerrainBuilder final {
+public:
+    // 由高程创建规则三角网格；LOD0 精确保留输入采样点，enableLOD 控制 Geode/三级 LOD。
+    // 包含平滑法线、颜色、0..1 UV；不依赖 Runtime，不自动挂场景。
+    // 当前生成开放地表，不生成侧壁/底面，也不读取高程文件。
+    // 非法数据或坐标不可表示时抛出 std::invalid_argument。
+    static osg::ref_ptr<osg::Node> build(const TerrainOptions& options);
+};
+
+struct IslandOptions {
+    // XY 平面中的外海岸，至少 3 点；各环可首尾闭合，可顺/逆时针。
+    // 外环和内环的有效点合计最多 2048；坐标使用场景单位，+Z 向上。
+    std::vector<osg::Vec2d> contour;
+    // 孔洞（如环礁水域），最多 64 个；严格位于外环内，不能相交、接触或嵌套。
+    // 地表和底面均留空，沿内岸生成侧壁；水面由宿主自行提供。
+    std::vector<std::vector<osg::Vec2d>> holes;
+    double seaLevel = 0.0;
+    double height = 20.0;       // 地表最高点相对海平面的高度，必须大于 0。
+    double baseDepth = 5.0;     // 底面在海平面以下的深度，必须大于 0。
+    unsigned subdivisions = 4; // 每轮将三角形四等分，0..7；最多生成 100 万个地表三角形。
+    double slopeExponent = 1.0; // >0；越大沿岸越平缓、山顶越集中。
+    osg::Vec4 beachColor{0.82f, 0.73f, 0.48f, 1.0f};
+    osg::Vec4 landColor{0.22f, 0.48f, 0.19f, 1.0f};
+    osg::Vec4 rockColor{0.38f, 0.36f, 0.32f, 1.0f};
+    bool enableLOD = false;      // false 返回 Geode；true 返回包含以下三级的 osg::LOD。
+    double lod1TriangleRatio = 0.05; // LOD1 目标面数/LOD0 面数，(0,1)；受几何约束可能略有偏差。
+    float lod0MinPixels = 300.0f; // 屏幕投影尺寸 >= 此值使用完整网格。
+    float lod1MinPixels = 60.0f;  // 此值到 lod0MinPixels 使用简化网格，更远使用面片。
+    unsigned impostorResolution = 256; // 两张 RGBA 纹理各自的边长，32..1024。
+    double impostorTopAngle = 45.0; // 俯仰角绝对值 >= 此角度选俯视图，(0,90) 度。
+};
+
+class PEREVIA_OSG_API IslandBuilder final {
+public:
+    // 按到海岸的距离生成地形；enableLOD 控制 Geode/三级 LOD，统一返回 Node。
+    // 不依赖 Runtime，不自动挂场景；调用者持有返回引用并自行 addChild。
+    // 非法轮廓/参数或超出网格上限时抛出 std::invalid_argument。
+    static osg::ref_ptr<osg::Node> build(const IslandOptions& options);
+};
 
 // URM = Uniform Rectilinear Motion（匀速直线运动）。位置和方向相对于 PereViaRoot。
 struct URMCubeOptions {
